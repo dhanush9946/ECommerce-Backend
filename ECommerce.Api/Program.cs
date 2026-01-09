@@ -1,4 +1,6 @@
+using ECommerce.Api.Middleware;
 using ECommerce.Application.Interfaces;
+using ECommerce.Application.Services;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Repositories;
 using ECommerce.Infrastructure.Security;
@@ -23,6 +25,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // -------------------- Dependency Injection --------------------
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // -------------------- JWT Authentication --------------------
 var jwtSettings = builder.Configuration.GetSection("Jwt");
@@ -88,6 +91,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
