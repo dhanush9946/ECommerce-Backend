@@ -36,4 +36,19 @@ public class ProductsController : ControllerBase
         if (product == null) return NotFound();
         return Ok(product);
     }
+
+    [HttpGet("search")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Search(
+        [FromQuery] string? search,
+        [FromQuery] string? category,
+        [FromQuery] string? brand,
+        [FromQuery] string? gender,
+        [FromQuery] int page=1,
+        [FromQuery] int pageSize=10,
+        [FromQuery] string? sort = null)
+    {
+        var result = await _service.SearchAsync(search, category, brand,gender,page,pageSize,sort);
+        return Ok(result);
+    }
 }

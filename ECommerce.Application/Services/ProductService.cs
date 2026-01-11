@@ -2,71 +2,100 @@
 using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
 
-public class ProductService : IProductService
+namespace ECommerce.Application.Services
 {
-    private readonly IProductRepository _repository;
-
-    public ProductService(IProductRepository repository)
+    public class ProductService : IProductService
     {
-        _repository = repository;
-    }
+        private readonly IProductRepository _repository;
 
-    public async Task<ProductDetailsResponseDto> CreateAsync(ProductRequestDto dto)
-    {
-        var product = new Product
+        public ProductService(IProductRepository repository)
         {
-            Name = dto.Name,
-            Brand = dto.Brand,
-            Category = dto.Category,
-            Price = dto.Price,
-            Gender = dto.Gender,
-            Description = dto.Description,
-            ImageUrl = dto.Image,
-            IsActive = dto.Status.ToLower() == "active"
-        };
+            _repository = repository;
+        }
 
-        var result = await _repository.AddAsync(product);
-
-        return MapToDetailsDto(result);
-    }
-
-    public async Task<List<ProductListResponseDto>> GetAllAsync()
-    {
-        var products = await _repository.GetAllAsync();
-
-        return products.Select(p => new ProductListResponseDto
+        public async Task<ProductDetailsResponseDto> CreateAsync(ProductRequestDto dto)
         {
-            Id = p.Id,
-            Name = p.Name,
-            Brand = p.Brand,
-            Category = p.Category,
-            Price = p.Price,
-            Image = p.ImageUrl,
-            Status = p.IsActive ? "active" : "inactive"
-        }).ToList();
-    }
+            var product = new Product
+            {
+                Name = dto.Name,
+                Brand = dto.Brand,
+                Category = dto.Category,
+                Price = dto.Price,
+                Gender = dto.Gender,
+                Description = dto.Description,
+                ImageUrl = dto.Image,
+                IsActive = dto.Status.ToLower() == "active"
+            };
 
-    public async Task<ProductDetailsResponseDto?> GetByIdAsync(int id)
-    {
-        var product = await _repository.GetByIdAsync(id);
-        if (product == null) return null;
+            var result = await _repository.AddAsync(product);
 
-        return MapToDetailsDto(product);
-    }
+            return MapToDetailsDto(result);
+        }
 
-    private static ProductDetailsResponseDto MapToDetailsDto(Product product)
-    {
-        return new ProductDetailsResponseDto
+        public async Task<List<ProductListResponseDto>> GetAllAsync()
         {
-            Id = product.Id,
-            Name = product.Name,
-            Brand = product.Brand,
-            Category = product.Category,
-            Price = product.Price,
-            Gender = product.Gender,
-            Description = product.Description,
-            Image = product.ImageUrl,
-            Status = product.IsActive ? "active" : "inactive"
-        };
+            var products = await _repository.GetAllAsync();
+
+            return products.Select(p => new ProductListResponseDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Brand = p.Brand,
+                Category = p.Category,
+                Price = p.Price,
+                Image = p.ImageUrl,
+                Status = p.IsActive ? "active" : "inactive"
+            }).ToList();
+        }
+
+        public async Task<ProductDetailsResponseDto?> GetByIdAsync(int id)
+        {
+            var product = await _repository.GetByIdAsync(id);
+            if (product == null) return null;
+
+            return MapToDetailsDto(product);
+        }
+
+        private static ProductDetailsResponseDto MapToDetailsDto(Product product)
+        {
+            return new ProductDetailsResponseDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Brand = product.Brand,
+                Category = product.Category,
+                Price = product.Price,
+                Gender = product.Gender,
+                Description = product.Description,
+                Image = product.ImageUrl,
+                Status = product.IsActive ? "active" : "inactive"
+            };
+        }
+
+        public async Task<List<ProductListResponseDto>> SearchAsync(
+            string? search,
+            string? category,
+            string? brand,
+            string? gender,
+            int page,
+            int pageSize,
+            string? sort
+        )
+        {
+            var products = await _repository.SearchAsync(
+                      search, category, brand,gender,page,pageSize,sort);
+
+            return products.Select(p => new ProductListResponseDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Brand = p.Brand,
+                Category = p.Category,
+                Price = p.Price,
+                Image = p.ImageUrl,
+                Status = p.IsActive ? "active" : "inactive"
+            }).ToList();
+        }
+
     }
 }
