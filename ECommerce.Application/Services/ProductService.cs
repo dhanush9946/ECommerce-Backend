@@ -21,6 +21,8 @@ namespace ECommerce.Application.Services
                 Brand = dto.Brand,
                 Category = dto.Category,
                 Price = dto.Price,
+                Stock = dto.Stock,
+                MaxOrderQuantity = dto.MaxOrderQuantity,
                 Gender = dto.Gender,
                 Description = dto.Description,
                 ImageUrl = dto.Image,
@@ -43,8 +45,9 @@ namespace ECommerce.Application.Services
                 Brand = p.Brand,
                 Category = p.Category,
                 Price = p.Price,
+                InStock = p.Stock > 0,
                 Image = p.ImageUrl,
-                Status = p.IsActive ? "active" : "inactive"
+                //Status = p.IsActive ? "active" : "inactive"
             }).ToList();
         }
 
@@ -65,10 +68,12 @@ namespace ECommerce.Application.Services
                 Brand = product.Brand,
                 Category = product.Category,
                 Price = product.Price,
+                AvailableStock = product.Stock,
+                MaxOrderQuantity = product.MaxOrderQuantity,
                 Gender = product.Gender,
                 Description = product.Description,
                 Image = product.ImageUrl,
-                Status = product.IsActive ? "active" : "inactive"
+                //Status = product.IsActive ? "active" : "inactive"
             };
         }
 
@@ -92,8 +97,9 @@ namespace ECommerce.Application.Services
                 Brand = p.Brand,
                 Category = p.Category,
                 Price = p.Price,
+                InStock = p.Stock > 0,
                 Image = p.ImageUrl,
-                Status = p.IsActive ? "active" : "inactive"
+                //Status = p.IsActive ? "active" : "inactive"
             }).ToList();
         }
 
