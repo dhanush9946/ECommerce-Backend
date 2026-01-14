@@ -29,6 +29,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> AddToWishlist(AddToWishlistDto dto)
         {
             await _wishlistService.AddToWishlist(GetUserId(), dto);
@@ -36,6 +37,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> GetWishlist()
         {
             var result = await _wishlistService.GetWishlist(GetUserId());
@@ -43,6 +45,7 @@ namespace ECommerce.API.Controllers
         }
 
         [HttpDelete("{productId}")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> RemoveFromWishlist(int productId)
         {
             await _wishlistService.RemoveFromWishlist(GetUserId(), productId);
@@ -52,6 +55,7 @@ namespace ECommerce.API.Controllers
 
 
         [HttpPost("move-to-cart/{productId}")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> MoveToCart(int productId)
         {
             await _wishlistService.MoveToCart(GetUserId(), productId);

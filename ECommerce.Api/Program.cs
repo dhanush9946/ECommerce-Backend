@@ -9,11 +9,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // -------------------- Controllers --------------------
 builder.Services.AddControllers();
+
+
+//----------------------------register fluent validation-------------
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddFluentValidationClientsideAdapters();
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
 
 // -------------------- Database --------------------
 builder.Services.AddDbContext<AppDbContext>(options =>

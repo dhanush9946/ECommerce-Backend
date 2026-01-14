@@ -29,6 +29,7 @@ namespace ECommerce.Api.Controllers
         }
 
         [HttpPost("add")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> AddToCart(AddToCartDto dto)
         {
             await _cartService.AddToCart(GetUserId(), dto);
@@ -36,12 +37,15 @@ namespace ECommerce.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "User")]
+
         public async Task<IActionResult> GetCart()
         {
             return Ok(await _cartService.GetCart(GetUserId()));
         }
 
         [HttpPut("update-quantity")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> UpdateQuantity(UpdateCartQuantityDto dto)
         {
             await _cartService.UpdateQuantity(GetUserId(), dto);
@@ -49,6 +53,7 @@ namespace ECommerce.Api.Controllers
         }
 
         [HttpDelete("remove/{productId}")]
+        [Authorize(Roles = "User")]
         public async Task<IActionResult> Remove(int productId)
         {
             await _cartService.RemoveFromCart(GetUserId(), productId);

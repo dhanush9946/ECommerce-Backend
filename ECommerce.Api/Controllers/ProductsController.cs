@@ -15,7 +15,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    //[Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Create(ProductRequestDto dto)
     {
         return Ok(await _service.CreateAsync(dto));
