@@ -33,5 +33,11 @@ namespace ECommerce.Infrastructure.Repositories
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
         }
+
+        public async Task UpdateAsync(Order order)
+        {
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+        }
     }
 }

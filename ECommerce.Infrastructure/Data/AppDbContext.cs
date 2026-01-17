@@ -34,6 +34,8 @@ namespace ECommerce.Infrastructure.Data
                 .HasIndex(w => new { w.UserId, w.ProductId })
                 .IsUnique();
 
+            //order
+
             modelBuilder.Entity<OrderItem>()
                .Property(o => o.Price)
                .HasPrecision(18, 2);
@@ -41,6 +43,14 @@ namespace ECommerce.Infrastructure.Data
             modelBuilder.Entity<Order>()
                 .Property(o => o.TotalAmount)
                 .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.OrderItems)
+                .WithOne(oi => oi.Order)   
+                .HasForeignKey(oi => oi.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
         }
     }
 }

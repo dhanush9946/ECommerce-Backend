@@ -8,6 +8,7 @@ namespace ECommerce.Application.Interfaces
         Task<Product> AddAsync(Product product);
         Task<List<Product>> GetAllAsync();
         Task<Product?> GetByIdAsync(int id);
+        Task UpdateAsync(Product product);
 
         Task<List<Product>> SearchAsync(
                             string? search,

@@ -9,5 +9,6 @@ namespace ECommerce.Application.Interfaces
         Task AddAsync(Order order);
         Task<List<Order>> GetUserOrders(Guid userId);
         Task<Order?> GetByIdAsync(Guid orderId);
+        Task UpdateAsync(Order order);
     }
 }

@@ -37,7 +37,7 @@ namespace ECommerce.Api.Controllers
         [HttpPost("checkout")]
         public async Task<IActionResult> Checkout(CheckoutRequestDto dto)
         {
-            var orderId = await _orderService.Checkout(UserId, dto);
+            var orderId = await _orderService.PlaceOrder(UserId, dto);
             return Ok(new { OrderId = orderId });
         }
         [HttpGet]
@@ -45,6 +45,12 @@ namespace ECommerce.Api.Controllers
         {
             var orders = await _orderService.GetUserOrders(UserId);
             return Ok(orders);
+        }
+        [HttpPut("{orderId}/cancel")]
+        public async Task<IActionResult> Cancel(Guid orderId)
+        {
+            await _orderService.CancelOrder(UserId, orderId);
+            return Ok("Order cancelled successfully");
         }
     }
 }

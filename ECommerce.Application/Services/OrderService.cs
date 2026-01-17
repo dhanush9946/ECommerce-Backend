@@ -8,32 +8,68 @@ namespace ECommerce.Application.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ICartRepository _cartRepository;
+        private readonly IProductRepository _productRepository;
 
         public OrderService(IOrderRepository orderRepository,
-                            ICartRepository cartRepository)
+                            ICartRepository cartRepository,
+                            IProductRepository productRepository)
         {
             _orderRepository = orderRepository;
             _cartRepository = cartRepository;
+            _productRepository = productRepository;
         }
 
-        public async Task<Guid> Checkout(Guid userId,CheckoutRequestDto dto)
+        public async Task<Guid> PlaceOrder(Guid userId,CheckoutRequestDto dto)
         {
             var cartItems = await _cartRepository.GetUserCart(userId);
             if (!cartItems.Any())
                 throw new Exception("Cart is Empty");
 
+            decimal total = 0;
+            var orderItems = new List<OrderItem>();
+
+            foreach(var cart in cartItems)
+            {
+                var product = await _productRepository.GetByIdAsync(cart.ProductId);
+
+                if (product == null || product.Stock < cart.Quantity)
+                    throw new Exception($"Insufficient stoke for {cart.Product.Name}");
+
+                if (cart.Quantity <= 0)
+                    throw new Exception("Invalid quantity");
+
+                if (cart.Quantity > product.MaxOrderQuantity)
+                    throw new Exception(
+                        $"You can order only {product.MaxOrderQuantity} units of {product.Name}");
+
+                if (cart.Quantity > product.Stock)
+                    throw new Exception(
+                        $"Only {product.Stock} units available for {product.Name}");
+
+
+                //we want to reduce the product stock
+                product.Stock -= cart.Quantity;
+                await _productRepository.UpdateAsync(product);
+
+                total += cart.Product.Price * cart.Quantity;
+
+                orderItems.Add(new OrderItem
+                {
+                    ProductId = product.Id,
+                    ProductName = product.Name,
+                    Price = product.Price,
+                    Quantity = cart.Quantity
+                });
+            }
+
             var order = new Order
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                TotalAmount = cartItems.Sum(c => c.Product.Price * c.Quantity),
-                OrderItems = cartItems.Select(c => new OrderItem
-                {
-                    ProductId = c.ProductId,
-                    ProductName = c.Product.Name,
-                    Price = c.Product.Price,
-                    Quantity = c.Quantity
-                }).ToList()
+                ShippingAddress=dto.ShippingAddress,
+                TotalAmount=total,
+                Status="Placed",
+                OrderItems=orderItems
             };
 
             await _orderRepository.AddAsync(order);
@@ -54,8 +90,34 @@ namespace ECommerce.Application.Services
                 OrderId = o.Id,
                 TotalAmount = o.TotalAmount,
                 Status = o.Status,
+                ShippingAdress=o.ShippingAddress,
                 CreatedAt = o.CreatedAt
             }).ToList();
+        }
+
+        public async Task CancelOrder(Guid userId,Guid orderId)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (order == null || order.UserId != userId)
+                throw new Exception("Order not found");
+
+            if (order.Status != "Placed")
+                throw new Exception("Order cannot be cancelled");
+
+            //if we cancel the order we want to restore the stoke
+
+            foreach(var item in order.OrderItems)
+            {
+                var product = await _productRepository.GetByIdAsync(item.ProductId);
+                if (product != null)
+                {
+                    product.Stock += item.Quantity;
+                    await _productRepository.UpdateAsync(product);
+                }
+            }
+
+            order.Status = "Cancelled";
+            await _orderRepository.UpdateAsync(order);
         }
 
     }

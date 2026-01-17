@@ -9,14 +9,31 @@ namespace ECommerce.Application.Services
     public class CartService:ICartService
     {
         private readonly ICartRepository _cartRepository;
-        public CartService(ICartRepository cartRepository)
+        private readonly IProductRepository _productRepository;
+        public CartService(ICartRepository cartRepository,
+                           IProductRepository productRepository)
         {
             _cartRepository = cartRepository;
+            _productRepository = productRepository;
         }
 
         public async Task AddToCart(Guid userId, AddToCartDto dto)
         {
+
+            var product = await _productRepository.GetByIdAsync(dto.ProductId);
+
+            if (product == null)
+                throw new Exception("Product not found");
+
+            if (dto.Quantity > product.MaxOrderQuantity)
+                throw new Exception(
+                    $"Maximum {product.MaxOrderQuantity} units allowed per order");
+
+            if (dto.Quantity > product.Stock)
+                throw new Exception("Insufficient stock");
+
             var cartItem = await _cartRepository.GetCartItem(userId, dto.ProductId);
+
 
             if (cartItem != null)
             {
