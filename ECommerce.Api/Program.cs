@@ -4,6 +4,7 @@ using ECommerce.Application.Services;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Repositories;
 using ECommerce.Infrastructure.Security;
+using ECommerce.Infrastructure.UnitOfWork;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -48,7 +49,8 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 
-
+//--------------------Unit of work----------------------------
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // -------------------- JWT Authentication --------------------
 var jwtSettings = builder.Configuration.GetSection("Jwt");
