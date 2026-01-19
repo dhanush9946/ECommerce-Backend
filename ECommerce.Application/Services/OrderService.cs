@@ -1,4 +1,5 @@
 ﻿using ECommerce.Application.DTOs.Order;
+using ECommerce.Application.DTOs.Payment;
 using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
 
@@ -10,16 +11,19 @@ namespace ECommerce.Application.Services
         private readonly ICartRepository _cartRepository;
         private readonly IProductRepository _productRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IPaymentService _paymentService;
 
         public OrderService(IOrderRepository orderRepository,
                             ICartRepository cartRepository,
                             IProductRepository productRepository,
-                            IUnitOfWork unitOfWork)
+                            IUnitOfWork unitOfWork,
+                            IPaymentService paymentService)
         {
             _orderRepository = orderRepository;
             _cartRepository = cartRepository;
             _productRepository = productRepository;
             _unitOfWork = unitOfWork;
+            _paymentService = paymentService;
         }
 
         public async Task<Guid> PlaceOrder(Guid userId,CheckoutRequestDto dto)
@@ -83,6 +87,22 @@ namespace ECommerce.Application.Services
                 };
 
                 await _orderRepository.AddAsync(order);
+
+
+                //---------------Payment----------------------------
+                var paymentResult = await _paymentService.ProcessPayment(new PaymentRequestDto
+                {
+                    OrderId = order.Id,
+                    Amount = order.TotalAmount,
+                    Method = dto.PaymentMethod
+                });
+
+                if (!paymentResult)
+                    throw new Exception("Payment failed");
+
+                order.Status = "Confirmed";
+                await _orderRepository.UpdateAsync(order);
+
 
                 foreach (var item in cartItems)
                 {

@@ -14,6 +14,7 @@ namespace ECommerce.Infrastructure.Data
         public DbSet<Wishlist> Wishlists { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,6 +50,11 @@ namespace ECommerce.Infrastructure.Data
                 .WithOne(oi => oi.Order)   
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //Payment
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Amount)
+                .HasPrecision(18, 2);
 
 
         }

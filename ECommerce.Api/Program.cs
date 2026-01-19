@@ -47,6 +47,9 @@ builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
 builder.Services.AddScoped<IWishlistService, WishlistService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IPaymentService, MockPaymentService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
 
 
 //--------------------Unit of work----------------------------
