@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.DTOs.Product;
+﻿using ECommerce.API.DTOs;
+using ECommerce.Application.DTOs.Product;
 using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
 
@@ -15,6 +16,14 @@ namespace ECommerce.Application.Services
 
         public async Task<ProductDetailsResponseDto> CreateAsync(ProductRequestDto dto)
         {
+            if (dto.Price <= 0)
+                throw new Exception("Price must be greater than zero");
+
+            if (dto.Stock < 0)
+                throw new Exception("Stock cannot be negative");
+
+            if (dto.MaxOrderQuantity <= 0)
+                throw new Exception("MaxOrderQuantity must be greater than zero");
             var product = new Product
             {
                 Name = dto.Name,
@@ -33,6 +42,43 @@ namespace ECommerce.Application.Services
 
             return MapToDetailsDto(result);
         }
+
+        public async Task UpdateAsync(int id, UpdateProductDto dto)
+        {
+            var product = await _repository.GetByIdAsync(id);
+
+            if (product == null)
+                throw new Exception("Product not found");
+
+            
+            product.Name = dto.Name;
+            product.Brand = dto.Brand;
+            product.Category = dto.Category;
+            product.Gender = dto.Gender;
+            product.Price = dto.Price;
+            product.Stock = dto.Stock;
+            product.MaxOrderQuantity = dto.MaxOrderQuantity;
+            product.IsActive = dto.IsActive;
+            product.Description = dto.Description;
+            product.ImageUrl = dto.Image;
+
+            await _repository.UpdateAsync(product);
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var product = await _repository.GetByIdAsync(id);
+
+            if (product == null)
+                throw new Exception("Product not found");
+
+            await _repository.DeleteAsync(product);
+        }
+
+
+
+
+
 
         public async Task<List<ProductListResponseDto>> GetAllAsync()
         {

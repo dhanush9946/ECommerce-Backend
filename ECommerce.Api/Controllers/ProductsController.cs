@@ -14,13 +14,6 @@ public class ProductsController : ControllerBase
         _service = service;
     }
 
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(ProductRequestDto dto)
-    {
-        return Ok(await _service.CreateAsync(dto));
-    }
-
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetAll()

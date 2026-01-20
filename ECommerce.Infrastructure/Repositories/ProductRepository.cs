@@ -20,6 +20,23 @@ namespace ECommerce.Infrastructure.Repositories
             await _context.SaveChangesAsync();
             return product;
         }
+
+        public async Task UpdateAsync(Product product)
+        {
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(Product product)
+        {
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+        }
+
+
+
+
+
         public async Task<List<Product>> GetAllAsync()
         {
             return await _context.Products
@@ -33,11 +50,7 @@ namespace ECommerce.Infrastructure.Repositories
 
         }
 
-        public async Task UpdateAsync(Product product)
-        {
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
-        }
+        
 
         public async Task<List<Product>> SearchAsync(
                             string? search,
