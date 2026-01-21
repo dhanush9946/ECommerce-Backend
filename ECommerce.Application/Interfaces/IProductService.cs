@@ -13,6 +13,7 @@ namespace ECommerce.Application.Interfaces
 
         Task<List<ProductListResponseDto>> GetAllAsync();
         Task<ProductDetailsResponseDto?> GetByIdAsync(int id);
+        Task<UpdateProductDto?> GetByIdAsyncAdmin(int id); 
         Task<List<ProductListResponseDto>> SearchAsync(
             string? search,
             string? category,

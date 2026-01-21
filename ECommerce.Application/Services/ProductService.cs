@@ -46,21 +46,29 @@ namespace ECommerce.Application.Services
         public async Task UpdateAsync(int id, UpdateProductDto dto)
         {
             var product = await _repository.GetByIdAsync(id);
-
             if (product == null)
                 throw new Exception("Product not found");
 
-            
-            product.Name = dto.Name;
-            product.Brand = dto.Brand;
-            product.Category = dto.Category;
-            product.Gender = dto.Gender;
-            product.Price = dto.Price;
-            product.Stock = dto.Stock;
-            product.MaxOrderQuantity = dto.MaxOrderQuantity;
-            product.IsActive = dto.IsActive;
-            product.Description = dto.Description;
-            product.ImageUrl = dto.Image;
+            // ONLY update what is sent
+            if (dto.Name != null) product.Name = dto.Name;
+            if (dto.Brand != null) product.Brand = dto.Brand;
+            if (dto.Category != null) product.Category = dto.Category;
+            if (dto.Gender != null) product.Gender = dto.Gender;
+
+            if (dto.Price.HasValue)
+                product.Price = dto.Price.Value;
+
+            if (dto.Stock.HasValue)
+                product.Stock = dto.Stock.Value;
+
+            if (dto.MaxOrderQuantity.HasValue)
+                product.MaxOrderQuantity = dto.MaxOrderQuantity.Value;
+
+            if (dto.IsActive.HasValue)
+                product.IsActive = dto.IsActive.Value;
+
+            if (dto.Description != null) product.Description = dto.Description;
+            if (dto.Image != null) product.ImageUrl = dto.Image;
 
             await _repository.UpdateAsync(product);
         }
@@ -119,7 +127,7 @@ namespace ECommerce.Application.Services
                 Gender = product.Gender,
                 Description = product.Description,
                 Image = product.ImageUrl,
-                //Status = product.IsActive ? "active" : "inactive"
+                
             };
         }
 
@@ -134,7 +142,7 @@ namespace ECommerce.Application.Services
         )
         {
             var products = await _repository.SearchAsync(
-                      search, category, brand,gender,page,pageSize,sort);
+                      search, category, brand, gender, page, pageSize, sort);
 
             return products.Select(p => new ProductListResponseDto
             {
@@ -147,7 +155,36 @@ namespace ECommerce.Application.Services
                 Image = p.ImageUrl,
                 //Status = p.IsActive ? "active" : "inactive"
             }).ToList();
+
         }
 
+
+        public async Task<UpdateProductDto?> GetByIdAsyncAdmin(int id)
+        {
+            var product = await _repository.GetByIdAsync(id);
+            if (product == null) return null;
+
+            return MapToDetailsDtoAdmin(product);
+        }
+
+        private static UpdateProductDto MapToDetailsDtoAdmin(Product product)
+        {
+            return new UpdateProductDto
+            {
+                Name = product.Name,
+                Brand = product.Brand,
+                Category = product.Category,
+                Price = product.Price,
+                Stock = product.Stock,
+                MaxOrderQuantity = product.MaxOrderQuantity,
+                Gender = product.Gender,
+                Description = product.Description,
+                Image = product.ImageUrl,
+                IsActive = product.IsActive
+
+            };
+        }
     }
+
+    
 }
