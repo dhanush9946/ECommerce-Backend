@@ -39,5 +39,23 @@ namespace ECommerce.Infrastructure.Repositories
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
+
+
+
+
+        public async Task<List<Order>> GetAllAsync()
+        {
+            return await _context.Orders
+                .Include(o => o.OrderItems)
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+        }
+
+        public async Task<Order?> GetOrderWithItemsAsync(Guid orderId)
+        {
+            return await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+        }
     }
 }
