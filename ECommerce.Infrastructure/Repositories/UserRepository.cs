@@ -41,5 +41,29 @@ namespace ECommerce.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
+
+        //Dashboard
+
+        public async Task<int> GetTotalUsersAsync()
+        {
+            return await _context.Users.CountAsync();
+        }
+
+        public async Task<int> GetActiveUsersAsync()
+        {
+            return await _context.Users.CountAsync(u => u.IsActive);
+        }
+
+        public async Task<int> GetBlockedUsersAsync()
+        {
+            return await _context.Users.CountAsync(u => !u.IsActive);
+        }
+
+        public async Task<int> GetNewUsersTodayAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            return await _context.Users.CountAsync(u => u.CreatedAt >= today);
+        }
+
     }
 }

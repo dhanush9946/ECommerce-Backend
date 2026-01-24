@@ -15,5 +15,11 @@ namespace ECommerce.Application.Interfaces
         Task<User?> GetByIdAsync(Guid id);
         Task UpdateAsync(User user);
 
+        //Dashboard
+        Task<int> GetTotalUsersAsync();
+        Task<int> GetActiveUsersAsync();
+        Task<int> GetBlockedUsersAsync();
+        Task<int> GetNewUsersTodayAsync();
+
     }
 }

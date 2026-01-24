@@ -57,5 +57,50 @@ namespace ECommerce.Infrastructure.Repositories
                 .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Id == orderId);
         }
+
+        //Dashboard
+
+        public async Task<int> GetTotalOrdersAsync()
+        {
+            return await _context.Orders.CountAsync();
+        }
+
+        public async Task<int> GetOrdersTodayAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            return await _context.Orders.CountAsync(o => o.CreatedAt >= today);
+        }
+
+        public async Task<int> GetPendingOrdersAsync()
+        {
+            return await _context.Orders.CountAsync(o => o.Status == "Pending");
+        }
+
+        public async Task<int> GetDeliveredOrdersAsync()
+        {
+            return await _context.Orders.CountAsync(o => o.Status == "Delivered");
+        }
+
+        public async Task<int> GetCancelledOrdersAsync()
+        {
+            return await _context.Orders.CountAsync(o => o.Status == "Cancelled");
+        }
+
+        public async Task<decimal> GetTotalRevenueAsync()
+        {
+            return await _context.Orders
+                .Where(o => o.Status == "Delivered")
+                .SumAsync(o => o.TotalAmount);
+        }
+
+        public async Task<decimal> GetTodayRevenueAsync()
+        {
+            var today = DateTime.UtcNow.Date;
+            return await _context.Orders
+                .Where(o => o.Status == "Delivered" && o.CreatedAt >= today)
+                .SumAsync(o => o.TotalAmount);
+        }
+
+
     }
 }

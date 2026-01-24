@@ -51,6 +51,8 @@ builder.Services.AddScoped<IPaymentService, MockPaymentService>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IAdminUserService, AdminUserService>();
 builder.Services.AddScoped<IAdminOrderService, AdminOrderService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
 
 
 

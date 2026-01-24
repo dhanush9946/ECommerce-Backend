@@ -106,5 +106,28 @@ namespace ECommerce.Infrastructure.Repositories
                 .Take(pageSize)
                 .ToListAsync();
         }
+
+
+        //Dashboard
+        
+        public async Task<int> GetTotalProductsAsync()
+        {
+            return await _context.Products.CountAsync();
+        }
+
+        public async Task<int> GetActiveProductsAsync()
+        {
+            return await _context.Products.CountAsync(p => p.IsActive);
+        }
+
+        public async Task<int> GetOutOfStockProductsAsync()
+        {
+            return await _context.Products.CountAsync(p => p.Stock == 0);
+        }
+
+        public async Task<int> GetLowStockProductsAsync()
+        {
+            return await _context.Products.CountAsync(p => p.Stock > 0 && p.Stock <= 5);
+        }
     }
 }

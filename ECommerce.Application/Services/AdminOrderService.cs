@@ -19,7 +19,7 @@ namespace ECommerce.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        [HttpGet]
+        
         public async Task<List<AdminOrderResponseDto>> GetAllOrders()
         {
             var orders = await _orderRepository.GetAllAsync();

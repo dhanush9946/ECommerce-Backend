@@ -22,5 +22,13 @@ namespace ECommerce.Application.Interfaces
                             string? sort
                );
 
+
+
+        //Dashboard
+        Task<int> GetTotalProductsAsync();
+        Task<int> GetActiveProductsAsync();
+        Task<int> GetOutOfStockProductsAsync();
+        Task<int> GetLowStockProductsAsync();
+
     }
 }

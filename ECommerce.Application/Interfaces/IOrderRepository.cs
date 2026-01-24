@@ -14,5 +14,15 @@ namespace ECommerce.Application.Interfaces
 
         Task<List<Order>> GetAllAsync();
         Task<Order?> GetOrderWithItemsAsync(Guid orderId);
+
+
+        //Dashboard
+        Task<int> GetTotalOrdersAsync();
+        Task<int> GetOrdersTodayAsync();
+        Task<int> GetPendingOrdersAsync();
+        Task<int> GetDeliveredOrdersAsync();
+        Task<int> GetCancelledOrdersAsync();
+        Task<decimal> GetTotalRevenueAsync();
+        Task<decimal> GetTodayRevenueAsync();
     }
 }
