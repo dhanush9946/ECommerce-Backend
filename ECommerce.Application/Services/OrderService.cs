@@ -32,9 +32,6 @@ namespace ECommerce.Application.Services
             try
             {
 
-
-
-
                 var cartItems = await _cartRepository.GetUserCart(userId);
                 if (!cartItems.Any())
                     throw new Exception("Cart is Empty");
@@ -82,7 +79,7 @@ namespace ECommerce.Application.Services
                     UserId = userId,
                     ShippingAddress = dto.ShippingAddress,
                     TotalAmount = total,
-                    Status = "Placed",
+                    Status = OrderStatus.Placed,
                     OrderItems = orderItems
                 };
 
@@ -100,7 +97,7 @@ namespace ECommerce.Application.Services
                 if (!paymentResult)
                     throw new Exception("Payment failed");
 
-                order.Status = "Confirmed";
+                order.Status = OrderStatus.Placed;//----------------------------------
                 await _orderRepository.UpdateAsync(order);
 
 
@@ -127,7 +124,7 @@ namespace ECommerce.Application.Services
             {
                 OrderId = o.Id,
                 TotalAmount = o.TotalAmount,
-                Status = o.Status,
+                Status = o.Status.ToString(),
                 ShippingAdress=o.ShippingAddress,
                 CreatedAt = o.CreatedAt
             }).ToList();
@@ -145,8 +142,11 @@ namespace ECommerce.Application.Services
                 if (order == null || order.UserId != userId)
                     throw new Exception("Order not found");
 
-                if (order.Status != "Placed")
+                if (order.Status != OrderStatus.Pending &&
+                    order.Status != OrderStatus.Placed)
+                {
                     throw new Exception("Order cannot be cancelled");
+                }
 
                 //if we cancel the order we want to restore the stoke
 
@@ -160,7 +160,7 @@ namespace ECommerce.Application.Services
                     }
                 }
 
-                order.Status = "Cancelled";
+                order.Status = OrderStatus.Cancelled;
                 await _orderRepository.UpdateAsync(order);
                 await _unitOfWork.CommitAsync();
             }

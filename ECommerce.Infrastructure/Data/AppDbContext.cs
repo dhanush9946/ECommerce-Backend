@@ -36,6 +36,9 @@ namespace ECommerce.Infrastructure.Data
                 .IsUnique();
 
             //order
+            modelBuilder.Entity<Order>()
+                .Property(o => o.Status)
+                .HasConversion<string>();
 
             modelBuilder.Entity<OrderItem>()
                .Property(o => o.Price)
@@ -50,6 +53,7 @@ namespace ECommerce.Infrastructure.Data
                 .WithOne(oi => oi.Order)   
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
 
             //Payment
             modelBuilder.Entity<Payment>()

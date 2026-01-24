@@ -73,23 +73,23 @@ namespace ECommerce.Infrastructure.Repositories
 
         public async Task<int> GetPendingOrdersAsync()
         {
-            return await _context.Orders.CountAsync(o => o.Status == "Pending");
+            return await _context.Orders.CountAsync(o => o.Status == OrderStatus.Pending);
         }
 
         public async Task<int> GetDeliveredOrdersAsync()
         {
-            return await _context.Orders.CountAsync(o => o.Status == "Delivered");
+            return await _context.Orders.CountAsync(o => o.Status == OrderStatus.Delivered);
         }
 
         public async Task<int> GetCancelledOrdersAsync()
         {
-            return await _context.Orders.CountAsync(o => o.Status == "Cancelled");
+            return await _context.Orders.CountAsync(o => o.Status == OrderStatus.Cancelled);
         }
 
         public async Task<decimal> GetTotalRevenueAsync()
         {
             return await _context.Orders
-                .Where(o => o.Status == "Delivered")
+                .Where(o => o.Status == OrderStatus.Confirmed)
                 .SumAsync(o => o.TotalAmount);
         }
 
@@ -97,7 +97,7 @@ namespace ECommerce.Infrastructure.Repositories
         {
             var today = DateTime.UtcNow.Date;
             return await _context.Orders
-                .Where(o => o.Status == "Delivered" && o.CreatedAt >= today)
+                .Where(o => o.Status == OrderStatus.Confirmed && o.CreatedAt >= today)
                 .SumAsync(o => o.TotalAmount);
         }
 
