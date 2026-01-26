@@ -1,4 +1,5 @@
-﻿using ECommerce.Domain.Entities;
+﻿using ECommerce.Application.DTOs.Dashboard;
+using ECommerce.Domain.Entities;
 using System;
 
 
@@ -20,6 +21,8 @@ namespace ECommerce.Application.Interfaces
         Task<int> GetActiveUsersAsync();
         Task<int> GetBlockedUsersAsync();
         Task<int> GetNewUsersTodayAsync();
+
+        Task<List<UserGrowthDto>> GetUserGrowthAsync(DateTime startDate);
 
     }
 }

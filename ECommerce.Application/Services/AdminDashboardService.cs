@@ -59,6 +59,22 @@ namespace ECommerce.Application.Services
 
         }
 
+        public async Task<List<DailySalesDto>> GetDailySalesAsync(int days = 7)
+        {
+            var startDate = DateTime.UtcNow.Date.AddDays(-days + 1);
+            return await _orderRepository.GetDailySalesAsync(startDate);
+        }
+
+        public async Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync()
+        {
+            return await _orderRepository.GetMonthlyRevenueAsync();
+        }
+
+        public async Task<List<UserGrowthDto>> GetUserGrowthAsync(int days = 30)
+        {
+            var startDate = DateTime.UtcNow.Date.AddDays(-days + 1);
+            return await _userRepository.GetUserGrowthAsync(startDate);
+        }
 
     }
 }

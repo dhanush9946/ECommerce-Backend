@@ -1,5 +1,6 @@
 ﻿
 
+using ECommerce.Application.DTOs.Dashboard;
 using ECommerce.Domain.Entities;
 
 namespace ECommerce.Application.Interfaces
@@ -24,5 +25,8 @@ namespace ECommerce.Application.Interfaces
         Task<int> GetCancelledOrdersAsync();
         Task<decimal> GetTotalRevenueAsync();
         Task<decimal> GetTodayRevenueAsync();
+
+        Task<List<DailySalesDto>> GetDailySalesAsync(DateTime startDate);
+        Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync();
     }
 }

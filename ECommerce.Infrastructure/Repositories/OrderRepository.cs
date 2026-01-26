@@ -3,6 +3,7 @@ using ECommerce.Domain.Entities;
 using ECommerce.Application.Interfaces;
 using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using ECommerce.Application.DTOs.Dashboard;
 
 namespace ECommerce.Infrastructure.Repositories
 {
@@ -99,6 +100,37 @@ namespace ECommerce.Infrastructure.Repositories
             return await _context.Orders
                 .Where(o => o.Status == OrderStatus.Confirmed && o.CreatedAt >= today)
                 .SumAsync(o => o.TotalAmount);
+        }
+
+        public async Task<List<DailySalesDto>> GetDailySalesAsync(DateTime startDate)
+        {
+            return await _context.Orders
+                .Where(o => o.Status == OrderStatus.Confirmed &&
+                o.CreatedAt >= startDate)
+                .GroupBy(o => o.CreatedAt.Date)
+                .Select(g => new DailySalesDto
+                {
+                    Date = g.Key,
+                    TotalSales = g.Sum(x => x.TotalAmount)
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
+        }
+
+        public async Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync()
+        {
+            return await _context.Orders
+                .Where(o => o.Status == OrderStatus.Confirmed)
+                .GroupBy(o => new { o.CreatedAt.Year, o.CreatedAt.Month })
+                .Select(g => new MonthlyRevenueDto
+                {
+                    Year = g.Key.Year,
+                    Month = g.Key.Month,
+                    Revenue = g.Sum(x => x.TotalAmount)
+                })
+                .OrderBy(x => x.Year)
+                .ThenBy(x => x.Month)
+                .ToListAsync();
         }
 
 

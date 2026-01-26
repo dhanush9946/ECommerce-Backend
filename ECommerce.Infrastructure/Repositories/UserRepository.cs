@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.Interfaces;
+﻿using ECommerce.Application.DTOs.Dashboard;
+using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
 using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -63,6 +64,20 @@ namespace ECommerce.Infrastructure.Repositories
         {
             var today = DateTime.UtcNow.Date;
             return await _context.Users.CountAsync(u => u.CreatedAt >= today);
+        }
+
+        public async Task<List<UserGrowthDto>> GetUserGrowthAsync(DateTime startDate)
+        {
+            return await _context.Users
+                .Where(u => u.CreatedAt >= startDate)
+                .GroupBy(u => u.CreatedAt.Date)
+                .Select(g => new UserGrowthDto
+                {
+                    Date = g.Key,
+                    UsersCount = g.Count()
+                })
+                .OrderBy(x => x.Date)
+                .ToListAsync();
         }
 
     }
