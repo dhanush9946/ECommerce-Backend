@@ -11,10 +11,16 @@ namespace ECommerce.Api.Controllers
     public class AuthController:ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IRefreshTokenService _refreshTokenService;
+        private readonly ILogoutService _logoutService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService,
+                              IRefreshTokenService refreshTokenService,
+                              ILogoutService logoutService)
         {
             _authService = authService;
+            _refreshTokenService = refreshTokenService;
+            _logoutService = logoutService;
         }
 
         [HttpPost("register")]
@@ -29,6 +35,20 @@ namespace ECommerce.Api.Controllers
         {
             var result = await _authService.LoginAsync(request);
             return Ok(result);
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> refresh(RefreshTokenRequestDto request)
+        {
+            var result = await _refreshTokenService.RefreshAsync(request);
+            return Ok(result);
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(LogoutRequestDto request)
+        {
+            await _logoutService.LogoutAsync(request);
+            return Ok("Logged out successfully");
         }
     }
 }

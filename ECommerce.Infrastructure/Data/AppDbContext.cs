@@ -15,6 +15,7 @@ namespace ECommerce.Infrastructure.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -59,6 +60,28 @@ namespace ECommerce.Infrastructure.Data
             modelBuilder.Entity<Payment>()
                 .Property(p => p.Amount)
                 .HasPrecision(18, 2);
+
+
+            // RefreshToken configuration
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+
+                entity.HasIndex(rt => rt.Token)
+                      .IsUnique();
+
+                entity.Property(rt => rt.Token)
+                      .IsRequired();
+
+                entity.Property(rt => rt.ExpiresAt)
+                      .IsRequired();
+
+                entity.Property(rt => rt.IsRevoked)
+                      .HasDefaultValue(false);
+
+                entity.Property(rt => rt.CreatedAt)
+                      .HasDefaultValueSql("GETUTCDATE()");
+            });
 
 
         }
