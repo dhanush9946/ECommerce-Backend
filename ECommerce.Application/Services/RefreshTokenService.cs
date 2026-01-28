@@ -2,6 +2,7 @@
 
 using ECommerce.Application.DTOs.Auth;
 using ECommerce.Application.Interfaces;
+using ECommerce.Domain.Entities;
 
 namespace ECommerce.Application.Services
 {
@@ -39,11 +40,29 @@ namespace ECommerce.Application.Services
             if (user == null || !user.IsActive)
                 throw new UnauthorizedAccessException("User is not found or user is inactive");
 
+            refreshToken.IsRevoked = true;
+
+            var newRefreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                Token = Guid.NewGuid().ToString("N"),
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            };
+
+            refreshToken.ReplacedByToken = newRefreshToken.Token;
+
+            await _refreshRepo.UpdateAsync(refreshToken);
+            await _refreshRepo.AddAsync(newRefreshToken);
+
+
+
             var newAccessToken = _jwtTokenService.GenerateToken(user);
 
             return new RefreshTokenResponseDto
             {
-                AccessToken = newAccessToken
+                AccessToken = newAccessToken,
+                RefreshToken=newRefreshToken.Token
             };
         }
     }

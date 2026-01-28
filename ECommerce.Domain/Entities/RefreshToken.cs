@@ -10,5 +10,6 @@ namespace ECommerce.Domain.Entities
         public DateTime ExpiresAt { get; set; }
         public bool IsRevoked { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string? ReplacedByToken { get; set; }
     }
 }

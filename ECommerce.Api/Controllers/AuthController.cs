@@ -34,21 +34,68 @@ namespace ECommerce.Api.Controllers
         public async Task<IActionResult> Login(LoginRequestDto request)
         {
             var result = await _authService.LoginAsync(request);
-            return Ok(result);
+
+            SetRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(new
+            {
+                result.UserId,
+                result.Name,
+                result.Role,
+                AccessToken = result.AccessToken
+            });
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> refresh(RefreshTokenRequestDto request)
+        public async Task<IActionResult> refresh()
         {
-            var result = await _refreshTokenService.RefreshAsync(request);
-            return Ok(result);
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized();
+
+            var result = await _refreshTokenService.RefreshAsync(
+                new RefreshTokenRequestDto { RefreshToken = refreshToken }
+                );
+
+
+            SetRefreshTokenCookie(result.RefreshToken);
+
+            return Ok(new
+            {
+                AccessToken = result.AccessToken
+            });
         }
 
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout(LogoutRequestDto request)
+        public async Task<IActionResult> Logout()
         {
-            await _logoutService.LogoutAsync(request);
+            var refreshToken = Request.Cookies["refreshToken"];
+            if(!string.IsNullOrEmpty(refreshToken))
+            {
+                await _logoutService.LogoutAsync(
+                    new LogoutRequestDto { RefreshToken = refreshToken }
+                    );
+            }
+
+            Response.Cookies.Delete("refreshToken");
+
             return Ok("Logged out successfully");
+        }
+
+
+
+        private void SetRefreshTokenCookie(string refreshToken)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
         }
     }
 }
