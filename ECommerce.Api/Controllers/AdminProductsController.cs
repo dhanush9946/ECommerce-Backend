@@ -37,9 +37,10 @@ namespace ECommerce.Api.Controllers
             return Ok("Product deleted");
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] AdminProductQueryDto query)
         {
-            return Ok(await _productService.GetAllAsync());
+            var result = await _productService.GetAdminProductsAsync(query);
+            return Ok(result);
         }
 
         [HttpGet("{id}")]

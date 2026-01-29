@@ -1,4 +1,5 @@
-﻿using ECommerce.Domain.Entities;
+﻿using ECommerce.Application.DTOs.Product;
+using ECommerce.Domain.Entities;
 
 
 namespace ECommerce.Application.Interfaces
@@ -29,6 +30,12 @@ namespace ECommerce.Application.Interfaces
         Task<int> GetActiveProductsAsync();
         Task<int> GetOutOfStockProductsAsync();
         Task<int> GetLowStockProductsAsync();
+
+
+        //Admin Products,search filter
+        Task<(List<Product> Items, int TotalCount)>
+            GetAdminPagedAsync(AdminProductQueryDto query);
+
 
     }
 }

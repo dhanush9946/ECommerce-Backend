@@ -1,7 +1,9 @@
 ﻿using ECommerce.API.DTOs;
+using ECommerce.Application.Common;
 using ECommerce.Application.DTOs.Product;
 using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace ECommerce.Application.Services
 {
@@ -184,6 +186,38 @@ namespace ECommerce.Application.Services
 
             };
         }
+
+
+        public async Task<PagedResult<object>> GetAdminProductsAsync(AdminProductQueryDto query)
+        {
+            if (query.Page <= 0) query.Page = 1;
+            if (query.PageSize <= 0) query.PageSize = 10;
+
+            var (items, totalCount) = await _repository.GetAdminPagedAsync(query);
+
+            return new PagedResult<object>
+            {
+                Items = items.Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Brand,
+                    p.Category,
+                    p.Price,
+                    p.Stock,
+                    p.IsActive,
+                    p.CreatedAt
+                }).Cast<object>().ToList(),
+
+                TotalCount = totalCount,
+                Page = query.Page,
+                PageSize = query.PageSize
+            };
+
+
+        }
+
+
     }
 
     

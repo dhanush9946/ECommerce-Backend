@@ -1,4 +1,5 @@
-﻿using ECommerce.Application.Interfaces;
+﻿using ECommerce.Application.DTOs.Product;
+using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
 using ECommerce.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +52,7 @@ namespace ECommerce.Infrastructure.Repositories
         }
 
         
-
+        //User search and filter ...
         public async Task<List<Product>> SearchAsync(
                             string? search,
                             string? category,
@@ -129,5 +130,66 @@ namespace ECommerce.Infrastructure.Repositories
         {
             return await _context.Products.CountAsync(p => p.Stock > 0 && p.Stock <= 5);
         }
+
+
+
+        //Admin Search and filter...
+
+        public async Task<(List<Product> Items, int TotalCount)> GetAdminPagedAsync(AdminProductQueryDto q)
+        {
+            IQueryable<Product> query = _context.Products.AsNoTracking();
+
+            //search
+
+            if (!string.IsNullOrWhiteSpace(q.Search))
+            {
+                var s = q.Search.ToLower();
+                query = query.Where(p =>
+                p.Name.ToLower().Contains(s) ||
+                p.Brand.ToLower().Contains(s) ||
+                p.Category.ToLower().Contains(s)
+                );
+            }
+
+            //Filtering
+
+            if (q.IsActive.HasValue)
+                query = query.Where(p => p.IsActive == q.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(q.Category))
+                query = query.Where(p => p.Category == q.Category);
+
+            if (!string.IsNullOrWhiteSpace(q.Brand))
+                query = query.Where(p => p.Brand == q.Brand);
+
+            //TotalCount
+            var totalCount = await query.CountAsync();
+
+            //sorting
+            query = (q.SortBy?.ToLower(), q.SortOrder?.ToLower()) switch
+            {
+                ("price", "asc") => query.OrderBy(p => p.Price),
+                ("price","desc") => query.OrderByDescending(p=>p.Price),
+
+                ("stock","asc") => query.OrderBy(p=>p.Stock),
+                ("stock","desc") => query.OrderByDescending(p=>p.Stock),
+
+                ("createdat","asc") => query.OrderBy(p=>p.CreatedAt),
+                _                   => query.OrderByDescending(p=>p.CreatedAt)
+            };
+
+            //Pagination
+
+            var items = await query
+                .Skip((q.Page - 1) * q.PageSize)
+                .Take(q.PageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+
+        }
+
+
+
     }
 }

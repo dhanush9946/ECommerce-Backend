@@ -1,4 +1,5 @@
 ﻿using ECommerce.API.DTOs;
+using ECommerce.Application.Common;
 using ECommerce.Application.DTOs.Product;
 
 namespace ECommerce.Application.Interfaces
@@ -9,6 +10,8 @@ namespace ECommerce.Application.Interfaces
 
         Task UpdateAsync(int id, UpdateProductDto dto);
         Task DeleteAsync(int id);
+        Task<PagedResult<object>> GetAdminProductsAsync(AdminProductQueryDto query);
+
 
 
         Task<List<ProductListResponseDto>> GetAllAsync();
