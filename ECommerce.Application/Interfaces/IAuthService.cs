@@ -7,5 +7,8 @@ namespace ECommerce.Application.Interfaces
     {
         Task RegisterAsync(RegisterRequestDto request);
         Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
+
+        Task ForgotPasswordAsync(string email);
+        Task ResetPasswordAsync(string token, string newPassword);
     }
 }

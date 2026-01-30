@@ -1,4 +1,5 @@
 ﻿using ECommerce.Application.DTOs.Auth;
+using ECommerce.Application.Helpers;
 using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
 
@@ -12,17 +13,23 @@ namespace ECommerce.Application.Services
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtTokenService _jwtService;
         private readonly IRefreshTokenRepository _refreshRepo;
+        private readonly IPasswordResetTokenRepository _resetTokenRepo;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AuthService(
             IUserRepository userRepository,
             IPasswordHasher passwordHasher,
             IJwtTokenService jwtService,
-            IRefreshTokenRepository refreshRepo)
+            IRefreshTokenRepository refreshRepo,
+            IPasswordResetTokenRepository tokenRepo,
+            IUnitOfWork unitOfWork)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _jwtService = jwtService;
             _refreshRepo = refreshRepo;
+            _resetTokenRepo = tokenRepo;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task RegisterAsync(RegisterRequestDto request)
@@ -79,6 +86,70 @@ namespace ECommerce.Application.Services
                 AccessToken=accessToken,
                 RefreshToken=refreshToken.Token
             };
+        }
+
+
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+            if (user == null) return;
+
+            var rawToken = TokenHelper.GenerateToken();
+            var hashedToken = TokenHelper.HashToken(rawToken);
+
+            var resetToken = new PasswordResetToken
+            {
+                UserId = user.Id,
+                TokenHash = hashedToken,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(15)
+            };
+
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                await _resetTokenRepo.AddAsync(resetToken);
+                await _unitOfWork.CommitAsync();
+
+                var resetLink =
+                $"https://yourfrontend.com/reset-password?token={rawToken}";
+                // send email here
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+
+        }
+
+        public async Task ResetPasswordAsync(string token,string newPassword)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var tokenHash = TokenHelper.HashToken(token);
+
+                var resetToken = await _resetTokenRepo.GetValidTokenAsync(tokenHash);
+
+                if (resetToken == null)
+                    throw new Exception("Invalid or Expired token");
+
+                var user = resetToken.User;
+
+                user.PasswordHash = _passwordHasher.Hash(newPassword);
+
+                await _userRepository.UpdateAsync(user);
+                await _resetTokenRepo.MarkAsUsedAsync(resetToken);
+                await _resetTokenRepo.InvalidateAllForUserAsync(user.Id);
+
+
+                await _unitOfWork.CommitAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
        

@@ -119,6 +119,58 @@ namespace ECommerce.Api.Controllers
             }
         }
 
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(
+            [FromBody] ForgotPasswordRequestDto dto)
+        {
+            try
+            {
+                await _authService.ForgotPasswordAsync(dto.Email);
+            }
+            catch (ArgumentException)
+            {
+                // swallow – do NOT reveal anything
+            }
+            catch (InvalidOperationException)
+            {
+                // swallow – user may not exist or be inactive
+            }
+
+
+            // Do NOT reveal whether email exists or not
+            return Ok(new
+            {
+                message = "If the email exists, a password reset link has been sent."
+            });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword(
+           [FromBody] ResetPasswordRequestDto dto)
+        {
+            try
+            {
+                await _authService.ResetPasswordAsync(dto.Token, dto.NewPassword);
+
+                return Ok(new
+                {
+                    message = "Password has been reset successfully."
+                });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException)
+            {
+                return BadRequest("Password reset is not allowed for this token.");
+            }
+        }
+
 
 
         private void SetRefreshTokenCookie(string refreshToken)
