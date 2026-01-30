@@ -18,26 +18,54 @@ namespace ECommerce.Api.Controllers
         [HttpGet("analytics")]
         public async Task<IActionResult> GetDashboardAnalytics()
         {
-            var result = await _adminDashboardService.GetDashboardAnalyticsAsync();
-            return Ok(result);
+            try
+            {
+                var result = await _adminDashboardService.GetDashboardAnalyticsAsync();
+                return Ok(result);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
 
         [HttpGet("daily-sales")]
         public async Task<IActionResult> GetDailySales([FromQuery] int days = 7)
         {
-            return Ok(await _adminDashboardService.GetDailySalesAsync(days));
+            try
+            {
+                return Ok(await _adminDashboardService.GetDailySalesAsync(days));
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("monthly-revenue")]
         public async Task<IActionResult> GetMonthlyRevenue()
         {
-            return Ok(await _adminDashboardService.GetMonthlyRevenueAsync());
+            try
+            {
+                return Ok(await _adminDashboardService.GetMonthlyRevenueAsync());
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
 
         [HttpGet("user-growth")]
         public async Task<IActionResult> GetUserGrowth([FromQuery] int days = 30)
         {
-            return Ok(await _adminDashboardService.GetUserGrowthAsync(days));
+            try
+            {
+                return Ok(await _adminDashboardService.GetUserGrowthAsync(days));
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

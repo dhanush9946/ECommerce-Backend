@@ -61,6 +61,9 @@ namespace ECommerce.Application.Services
 
         public async Task<List<DailySalesDto>> GetDailySalesAsync(int days = 7)
         {
+            if (days <= 0)
+                throw new Exception("Days must be greater than zero");
+
             var startDate = DateTime.UtcNow.Date.AddDays(-days + 1);
             return await _orderRepository.GetDailySalesAsync(startDate);
         }
@@ -72,6 +75,9 @@ namespace ECommerce.Application.Services
 
         public async Task<List<UserGrowthDto>> GetUserGrowthAsync(int days = 30)
         {
+            if (days <= 0)
+                throw new Exception("Days must be greater than zero");
+
             var startDate = DateTime.UtcNow.Date.AddDays(-days + 1);
             return await _userRepository.GetUserGrowthAsync(startDate);
         }

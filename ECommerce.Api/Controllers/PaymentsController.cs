@@ -18,11 +18,23 @@ public class PaymentsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Pay(PaymentRequestDto dto)
     {
-        var success = await _paymentService.ProcessPayment(dto);
+        try
+        {
+            var success = await _paymentService.ProcessPayment(dto);
 
-        if (!success)
-            return BadRequest("Payment failed");
+            if (!success)
+                return BadRequest("Payment failed");
 
-        return Ok("Payment successful");
+            return Ok("Payment successful");
+        }
+        catch(UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ex.Message);
+
+        }
+        catch(ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

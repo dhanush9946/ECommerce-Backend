@@ -18,19 +18,52 @@ namespace ECommerce.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
-            return Ok(await _adminOrderService.GetAllOrders());
+            try
+            {
+                return Ok(await _adminOrderService.GetAllOrders());
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrder(Guid orderId)
         {
-            return Ok(await _adminOrderService.GetOrderById(orderId));
+            try
+            {
+                return Ok(await _adminOrderService.GetOrderById(orderId));
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
         [HttpPatch("{orderId}/status")]
         public async Task<IActionResult> UpdateStatus(Guid orderId,UpdateOrderStatusDto dto)
         {
-            await _adminOrderService.UpdateOrderStatus(orderId, dto.Status);
-            return Ok("Order status updated");
+            try
+            {
+                await _adminOrderService.UpdateOrderStatus(orderId, dto.Status);
+                return Ok("Order status updated");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
     }
 }

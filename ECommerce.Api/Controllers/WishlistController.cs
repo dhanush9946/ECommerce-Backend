@@ -20,6 +20,7 @@ namespace ECommerce.API.Controllers
 
         private Guid GetUserId()
         {
+
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
 
             if (userIdClaim == null)
@@ -32,24 +33,56 @@ namespace ECommerce.API.Controllers
         [Authorize(Roles = "User")]
         public async Task<IActionResult> AddToWishlist(AddToWishlistDto dto)
         {
-            await _wishlistService.AddToWishlist(GetUserId(), dto);
-            return Ok("Product added to wishlist");
+            try
+            {
+                await _wishlistService.AddToWishlist(GetUserId(), dto);
+                return Ok("Product added to wishlist");
+            }
+
+
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch(ApplicationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> GetWishlist()
         {
-            var result = await _wishlistService.GetWishlist(GetUserId());
-            return Ok(result);
+            try
+            {
+                var result = await _wishlistService.GetWishlist(GetUserId());
+                return Ok(result);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
 
         [HttpDelete("{productId}")]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> RemoveFromWishlist(int productId)
         {
-            await _wishlistService.RemoveFromWishlist(GetUserId(), productId);
-            return Ok("Product removed from wishlist");
+            try
+            {
+
+                await _wishlistService.RemoveFromWishlist(GetUserId(), productId);
+                return Ok("Product removed from wishlist");
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
 
 
@@ -58,8 +91,19 @@ namespace ECommerce.API.Controllers
         [Authorize(Roles = "User")]
         public async Task<IActionResult> MoveToCart(int productId)
         {
-            await _wishlistService.MoveToCart(GetUserId(), productId);
-            return Ok("Product moved to cart successfully");
+            try
+            {
+                await _wishlistService.MoveToCart(GetUserId(), productId);
+                return Ok("Product moved to cart successfully");
+            }
+            catch(ApplicationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
 
     }

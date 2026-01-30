@@ -20,8 +20,15 @@ namespace ECommerce.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _adminUserService.GetAllUsersAsync();
-            return Ok(users);
+            try
+            {
+                var users = await _adminUserService.GetAllUsersAsync();
+                return Ok(users);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
 
 
@@ -29,8 +36,27 @@ namespace ECommerce.Api.Controllers
         [HttpPatch("{id}/status")]
         public async Task<IActionResult> UpdateUserStatusAsync(Guid id,UpdateUserStatusDto request)
         {
-            var result = await _adminUserService.UpdateUserStatusAsync(id, request.IsActive);
-            return Ok(result);
+            try
+            {
+                var result = await _adminUserService.UpdateUserStatusAsync(id, request.IsActive);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
         }
     }
 }

@@ -20,34 +20,81 @@ namespace ECommerce.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(ProductRequestDto dto)
         {
-            return Ok(await _productService.CreateAsync(dto));
+            try
+            {
+                return Ok(await _productService.CreateAsync(dto));
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateProductDto dto)
         {
-            await _productService.UpdateAsync(id, dto);
-            return Ok("Product updated");
+            try
+            {
+                await _productService.UpdateAsync(id, dto);
+                return Ok("Product updated");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _productService.DeleteAsync(id);
-            return Ok("Product deleted");
+            try
+            {
+                await _productService.DeleteAsync(id);
+                return Ok("Product deleted");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] AdminProductQueryDto query)
         {
-            var result = await _productService.GetAdminProductsAsync(query);
-            return Ok(result);
+            try
+            {
+                var result = await _productService.GetAdminProductsAsync(query);
+                return Ok(result);
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
+            try
+            {
 
-            return Ok(await _productService.GetByIdAsyncAdmin(id));
+                return Ok(await _productService.GetByIdAsyncAdmin(id));
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
 
     }

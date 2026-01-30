@@ -18,16 +18,30 @@ public class ProductsController : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
-        return Ok(await _service.GetAllAsync());
+        try
+        {
+            return Ok(await _service.GetAllAsync());
+        }
+        catch(ApplicationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
-        var product = await _service.GetByIdAsync(id);
-        if (product == null) return NotFound();
-        return Ok(product);
+        try
+        {
+            var product = await _service.GetByIdAsync(id);
+            if (product == null) return NotFound();
+            return Ok(product);
+        }
+        catch(ApplicationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet("search")]
@@ -41,7 +55,14 @@ public class ProductsController : ControllerBase
         [FromQuery] int pageSize=10,
         [FromQuery] string? sort = null)
     {
-        var result = await _service.SearchAsync(search, category, brand,gender,page,pageSize,sort);
-        return Ok(result);
+        try
+        {
+            var result = await _service.SearchAsync(search, category, brand, gender, page, pageSize, sort);
+            return Ok(result);
+        }
+        catch(ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }

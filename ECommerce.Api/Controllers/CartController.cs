@@ -32,32 +32,75 @@ namespace ECommerce.Api.Controllers
         [Authorize(Roles = "User")]
         public async Task<IActionResult> AddToCart(AddToCartDto dto)
         {
-            await _cartService.AddToCart(GetUserId(), dto);
-            return Ok("Product added to cart");
+            try
+            {
+                await _cartService.AddToCart(GetUserId(), dto);
+                return Ok("Product added to cart");
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet]
         [Authorize(Roles = "User")]
-
         public async Task<IActionResult> GetCart()
         {
-            return Ok(await _cartService.GetCart(GetUserId()));
+            try
+            {
+                return Ok(await _cartService.GetCart(GetUserId()));
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
 
         [HttpPut("update-quantity")]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> UpdateQuantity(UpdateCartQuantityDto dto)
         {
-            await _cartService.UpdateQuantity(GetUserId(), dto);
-            return Ok("Quantity updated");
+            try
+            {
+                await _cartService.UpdateQuantity(GetUserId(), dto);
+                return Ok("Quantity updated");
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch(InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
 
         [HttpDelete("remove/{productId}")]
         [Authorize(Roles = "User")]
         public async Task<IActionResult> Remove(int productId)
         {
-            await _cartService.RemoveFromCart(GetUserId(), productId);
-            return Ok("Removed from  cart");
+            try
+            {
+                await _cartService.RemoveFromCart(GetUserId(), productId);
+                return Ok("Removed from  cart");
+            }
+            catch(KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
     }
 }

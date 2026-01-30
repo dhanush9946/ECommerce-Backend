@@ -26,61 +26,97 @@ namespace ECommerce.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterRequestDto request)
         {
-            await _authService.RegisterAsync(request);
-            return Ok("User registered successfully");
+            try
+            {
+                await _authService.RegisterAsync(request);
+                return Ok("User registered successfully");
+            }
+            catch(ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequestDto request)
         {
-            var result = await _authService.LoginAsync(request);
-
-            SetRefreshTokenCookie(result.RefreshToken);
-
-            return Ok(new
+            try
             {
-                result.UserId,
-                result.Name,
-                result.Role,
-                AccessToken = result.AccessToken
-            });
+                var result = await _authService.LoginAsync(request);
+
+                SetRefreshTokenCookie(result.RefreshToken);
+
+                return Ok(new
+                {
+                    result.UserId,
+                    result.Name,
+                    result.Role,
+                    AccessToken = result.AccessToken
+                });
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch(InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("refresh")]
         public async Task<IActionResult> refresh()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-
-            if (string.IsNullOrEmpty(refreshToken))
-                return Unauthorized();
-
-            var result = await _refreshTokenService.RefreshAsync(
-                new RefreshTokenRequestDto { RefreshToken = refreshToken }
-                );
-
-
-            SetRefreshTokenCookie(result.RefreshToken);
-
-            return Ok(new
+            try
             {
-                AccessToken = result.AccessToken
-            });
+                var refreshToken = Request.Cookies["refreshToken"];
+
+                if (string.IsNullOrEmpty(refreshToken))
+                    return Unauthorized();
+
+                var result = await _refreshTokenService.RefreshAsync(
+                    new RefreshTokenRequestDto { RefreshToken = refreshToken }
+                    );
+
+
+                SetRefreshTokenCookie(result.RefreshToken);
+
+                return Ok(new
+                {
+                    AccessToken = result.AccessToken
+                });
+            }
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch(InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-            if(!string.IsNullOrEmpty(refreshToken))
+            try
             {
-                await _logoutService.LogoutAsync(
-                    new LogoutRequestDto { RefreshToken = refreshToken }
-                    );
+                var refreshToken = Request.Cookies["refreshToken"];
+                if (!string.IsNullOrEmpty(refreshToken))
+                {
+                    await _logoutService.LogoutAsync(
+                        new LogoutRequestDto { RefreshToken = refreshToken }
+                        );
+                }
+
+                Response.Cookies.Delete("refreshToken");
+
+                return Ok("Logged out successfully");
             }
-
-            Response.Cookies.Delete("refreshToken");
-
-            return Ok("Logged out successfully");
+            catch(UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
 
 

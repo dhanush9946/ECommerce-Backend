@@ -36,12 +36,12 @@ namespace ECommerce.Api.Middleware
         {
             var statusCode = exception switch
             {
-
-
                 UnauthorizedAccessException => HttpStatusCode.Unauthorized,
+                KeyNotFoundException => HttpStatusCode.NotFound,
                 ApplicationException => HttpStatusCode.BadRequest,
                 _ => HttpStatusCode.InternalServerError
             };
+
 
             var response = new
             {
