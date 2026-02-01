@@ -4,6 +4,7 @@ using ECommerce.Application.Services;
 using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Repositories;
 using ECommerce.Infrastructure.Security;
+using ECommerce.Infrastructure.Services.Email;
 using ECommerce.Infrastructure.UnitOfWork;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -35,6 +36,11 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+//--------------------SMTP Configuration binding----------
+builder.Services.Configure<SmtpOptions>(
+    builder.Configuration.GetSection("Smtp"));
+
+
 // -------------------- Dependency Injection --------------------
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
@@ -57,6 +63,8 @@ builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<ILogoutService, LogoutService>();
 builder.Services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+
 
 
 

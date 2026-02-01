@@ -7,7 +7,11 @@ namespace ECommerce.Application.Helpers
     {
         public static string GenerateToken()
         {
-            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+            var bytes = RandomNumberGenerator.GetBytes(64);
+            return Convert.ToBase64String(bytes)
+                .Replace("+", "-")
+                .Replace("/", "_")
+                .Replace("=", "");
         }
 
         public static string HashToken(string token)

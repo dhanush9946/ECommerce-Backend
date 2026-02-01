@@ -2,6 +2,8 @@
 using ECommerce.Application.Helpers;
 using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
+using Microsoft.Extensions.Configuration;
+using System.Net;
 
 
 
@@ -15,6 +17,10 @@ namespace ECommerce.Application.Services
         private readonly IRefreshTokenRepository _refreshRepo;
         private readonly IPasswordResetTokenRepository _resetTokenRepo;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
+
+
 
         public AuthService(
             IUserRepository userRepository,
@@ -22,7 +28,9 @@ namespace ECommerce.Application.Services
             IJwtTokenService jwtService,
             IRefreshTokenRepository refreshRepo,
             IPasswordResetTokenRepository tokenRepo,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IEmailService emailService,
+            IConfiguration configuration)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
@@ -30,6 +38,8 @@ namespace ECommerce.Application.Services
             _refreshRepo = refreshRepo;
             _resetTokenRepo = tokenRepo;
             _unitOfWork = unitOfWork;
+            _emailService = emailService;
+            _configuration = configuration;
         }
 
         public async Task RegisterAsync(RegisterRequestDto request)
@@ -110,9 +120,30 @@ namespace ECommerce.Application.Services
                 await _resetTokenRepo.AddAsync(resetToken);
                 await _unitOfWork.CommitAsync();
 
+                var frontendUrl = _configuration["Frontend:BaseUrl"]
+                     ?? throw new Exception("Frontend BaseUrl is not configured");
+
+                var encodedToken = WebUtility.UrlEncode(rawToken);
+
                 var resetLink =
-                $"https://yourfrontend.com/reset-password?token={rawToken}";
+                    $"{frontendUrl}/reset-password?token={encodedToken}";
                 // send email here
+
+                var emailBody = $@"
+                <p>Hello,</p>
+                <p>You requested to reset your password.</p>
+                <p>
+                <a href='{resetLink}'>Click here to reset your password</a>
+                </p>
+                <p>This link will expire in 15 minutes.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+                ";
+
+                await _emailService.SendAsync(
+                    user.Email,
+                    "Reset Your Password",
+                    emailBody
+                    );
             }
             catch
             {
