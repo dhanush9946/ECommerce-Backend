@@ -102,6 +102,7 @@ namespace ECommerce.Application.Services
                 Category = p.Category,
                 Price = p.Price,
                 InStock = p.Stock > 0,
+                Description=p.Description,
                 Image = p.ImageUrl,
                 //Status = p.IsActive ? "active" : "inactive"
             }).ToList();

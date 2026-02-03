@@ -68,8 +68,15 @@ namespace ECommerce.Infrastructure.Repositories
 
             if (!string.IsNullOrWhiteSpace(search))
             {
-                query = query.Where(p => p.Name.ToLower().Contains(search.ToLower()));
+                var lowerSearch = search.ToLower();
 
+                query = query
+                    .Where(p =>
+                        p.Name.ToLower().Contains(lowerSearch) ||
+                        p.Brand.ToLower().Contains(lowerSearch)
+                    )
+                    .OrderByDescending(p => p.Name.ToLower().StartsWith(lowerSearch))
+                    .ThenBy(p => p.Name);
             }
 
             if (!string.IsNullOrWhiteSpace(category))
@@ -91,13 +98,23 @@ namespace ECommerce.Infrastructure.Repositories
 
 
 
-            query = sort switch
+            // Apply sorting ONLY if sort is provided
+            if (!string.IsNullOrWhiteSpace(sort))
             {
-                "priceAsc"  => query.OrderBy(p=>p.Price),
-                "priceDesc" => query.OrderByDescending(p=>p.Price),
-                "newest"    => query.OrderByDescending(p=>p.CreatedAt),
-                 _          => query.OrderBy(p=>p.Id)
-            };
+                query = sort switch
+                {
+                    "priceAsc" => query.OrderBy(p => p.Price),
+                    "priceDesc" => query.OrderByDescending(p => p.Price),
+                    "newest" => query.OrderByDescending(p => p.CreatedAt),
+                    _ => query
+                };
+            }
+            else if (string.IsNullOrWhiteSpace(search))
+            {
+                // Default ordering ONLY when NOT searching
+                query = query.OrderBy(p => p.Id);
+            }
+
 
 
             //pagination

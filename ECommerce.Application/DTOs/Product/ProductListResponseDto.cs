@@ -11,6 +11,7 @@ namespace ECommerce.Application.DTOs.Product
         public decimal Price { get; set; }
 
         public bool InStock { get; set; }
+        public string Description { get; set; } = null!;
 
         public string Image { get; set; } = null!;
 

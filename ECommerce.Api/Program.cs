@@ -22,6 +22,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 
+//------------------React Connection with CORE--------------------
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173") // frontend URL
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); 
+    });
+});
+
+
+
+
 //----------------------------register fluent validation-------------
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
@@ -140,6 +156,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("CorsPolicy");
+
+
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
