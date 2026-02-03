@@ -3,7 +3,7 @@ using ECommerce.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[Authorize]
+
 [ApiController]
 [Route("api/products")]
 public class ProductsController : ControllerBase
@@ -16,7 +16,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    // [AllowAnonymous]
+    [AllowAnonymous]
     
  
     public async Task<IActionResult> GetAll()
