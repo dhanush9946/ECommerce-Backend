@@ -127,6 +127,7 @@ namespace ECommerce.Application.Services
                 Price = product.Price,
                 AvailableStock = product.Stock,
                 MaxOrderQuantity = product.MaxOrderQuantity,
+                InStock=product.Stock>0,
                 Gender = product.Gender,
                 Description = product.Description,
                 Image = product.ImageUrl,

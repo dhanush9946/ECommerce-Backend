@@ -13,6 +13,7 @@ namespace ECommerce.Application.DTOs.Product
 
        
         public int AvailableStock { get; set; }
+        public bool InStock { get; set; }
         public int MaxOrderQuantity { get; set; }
 
         public string Gender { get; set; } = null!;

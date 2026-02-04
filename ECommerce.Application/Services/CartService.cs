@@ -95,7 +95,8 @@ namespace ECommerce.Application.Services
                 ProductId = c.ProductId,
                 ProductName = c.Product?.Name ?? string.Empty,
                 Price = c.Product?.Price ?? 0,
-                Quantity = c.Quantity
+                Quantity = c.Quantity,
+                ImageUrl=c.Product?.ImageUrl
             }).ToList();
         }
         public async Task RemoveFromCart(Guid userId,int productId)
