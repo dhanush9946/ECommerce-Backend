@@ -8,7 +8,8 @@ namespace ECommerce.Application.Interfaces
     {
         Task<Product> AddAsync(Product product);
         Task UpdateAsync(Product product);
-        Task DeleteAsync(Product product);
+        Task SoftDeleteAsync(Product product);
+
 
 
         Task<List<Product>> GetAllAsync();
@@ -35,6 +36,11 @@ namespace ECommerce.Application.Interfaces
         //Admin Products,search filter
         Task<(List<Product> Items, int TotalCount)>
             GetAdminPagedAsync(AdminProductQueryDto query);
+
+
+        Task<Product?> GetByIdAdminAsync(int id);
+        
+
 
 
     }

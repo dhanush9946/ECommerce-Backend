@@ -52,7 +52,7 @@ namespace ECommerce.Api.Controllers
             }
         }
 
-        [HttpDelete("{id}")]
+        [HttpPatch("update/{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             try
@@ -96,6 +96,25 @@ namespace ECommerce.Api.Controllers
                 return NotFound(ex.Message);
             }
         }
+
+        [HttpPatch("{id}/status")]
+        public async Task<IActionResult> ToggleStatus(int id)
+        {
+            try
+            {
+                await _productService.ToggleStatusAsync(id);
+                return Ok("Product status updated");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
     }
 }

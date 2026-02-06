@@ -125,8 +125,15 @@ namespace ECommerce.Application.Services
                 OrderId = o.Id,
                 TotalAmount = o.TotalAmount,
                 Status = o.Status.ToString(),
-                ShippingAdress=o.ShippingAddress,
-                CreatedAt = o.CreatedAt
+                ShippingAdress = o.ShippingAddress,
+                CreatedAt = o.CreatedAt,
+                Items = o.OrderItems.Select(i => new UserOrderItem
+                {
+                    ProductId = i.ProductId,
+                    ProductName = i.ProductName,
+                    Price = i.Price,
+                    Quantity = i.Quantity
+                }).ToList()
             }).ToList();
         }
 

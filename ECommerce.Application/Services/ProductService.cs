@@ -37,7 +37,7 @@ namespace ECommerce.Application.Services
                 Gender = dto.Gender,
                 Description = dto.Description,
                 ImageUrl = dto.Image,
-                IsActive = dto.Status.ToLower() == "active"
+                IsActive = dto.Status?.ToLower() == "active"
             };
 
             var result = await _repository.AddAsync(product);
@@ -82,8 +82,23 @@ namespace ECommerce.Application.Services
             if (product == null)
                 throw new Exception("Product not found");
 
-            await _repository.DeleteAsync(product);
+            await _repository.SoftDeleteAsync(product);
         }
+
+
+        public async Task ToggleStatusAsync(int productId)
+        {
+            var product = await _repository.GetByIdAdminAsync(productId);
+
+            if (product == null)
+                throw new KeyNotFoundException("Product not found");
+
+            // Toggle
+            product.IsActive = !product.IsActive;
+
+            await _repository.UpdateAsync(product);
+        }
+
 
 
 
@@ -208,7 +223,8 @@ namespace ECommerce.Application.Services
                     p.Price,
                     p.Stock,
                     p.IsActive,
-                    p.CreatedAt
+                    p.CreatedAt,
+                    p.ImageUrl
                 }).Cast<object>().ToList(),
 
                 TotalCount = totalCount,

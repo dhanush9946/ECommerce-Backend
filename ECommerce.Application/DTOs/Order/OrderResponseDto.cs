@@ -8,5 +8,6 @@ namespace ECommerce.Application.DTOs.Order
         public string Status { get; set; } = string.Empty;
         public string ShippingAdress { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
+        public List<UserOrderItem> Items { get; set; } = new();
     }
 }

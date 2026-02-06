@@ -26,5 +26,8 @@ namespace ECommerce.Application.Interfaces
             int pageSize,
             string? sort
         );
+
+        Task ToggleStatusAsync(int productId);
+
     }
 }

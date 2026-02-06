@@ -28,11 +28,29 @@ namespace ECommerce.Infrastructure.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Product product)
+        //public async Task SoftDeleteAsync(Product product)
+        //{
+        //    product.IsActive = false;      
+        //    await _context.SaveChangesAsync();
+        //}
+
+        public async Task SoftDeleteAsync(Product product)
         {
-            _context.Products.Remove(product);
+            Console.WriteLine($"Before: {product.IsActive}");
+            product.IsActive = !product.IsActive;
+            Console.WriteLine($"After: {product.IsActive}");
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Product?> GetByIdAdminAsync(int id)
+        {
+            return await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+
+
+
 
 
 
