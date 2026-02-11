@@ -15,6 +15,21 @@ public class PaymentsController : ControllerBase
         _paymentService = paymentService;
     }
 
+    [HttpPost("create-order")]
+    public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto dto)
+    {
+        try
+        {
+            var result = await _paymentService.CreateOrder(dto.Amount);
+            return Ok(result);
+        }
+        catch(ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+
     [HttpPost]
     public async Task<IActionResult> Pay(PaymentRequestDto dto)
     {

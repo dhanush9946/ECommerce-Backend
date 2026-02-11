@@ -44,13 +44,24 @@ namespace ECommerce.Infrastructure.Repositories
 
 
 
-        public async Task<List<Order>> GetAllAsync()
+        public async Task<List<Order>> GetAllAsync(OrderStatus? status)
         {
-            return await _context.Orders
+            var query = _context.Orders
                 .Include(o => o.OrderItems)
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(o => o.Status == status.Value);
+            }
+
+            return await query
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
         }
+
+
 
         public async Task<Order?> GetOrderWithItemsAsync(Guid orderId)
         {
@@ -104,9 +115,17 @@ namespace ECommerce.Infrastructure.Repositories
 
         public async Task<List<DailySalesDto>> GetDailySalesAsync(DateTime startDate)
         {
+            var successStatuses = new[]
+            {
+        OrderStatus.Confirmed,
+        OrderStatus.Delivered,
+        OrderStatus.Shipped
+    };
+
             return await _context.Orders
-                .Where(o => o.Status == OrderStatus.Confirmed &&
-                o.CreatedAt >= startDate)
+                .Where(o =>
+                    successStatuses.Contains(o.Status) &&
+                    o.CreatedAt >= startDate)
                 .GroupBy(o => o.CreatedAt.Date)
                 .Select(g => new DailySalesDto
                 {
@@ -117,10 +136,18 @@ namespace ECommerce.Infrastructure.Repositories
                 .ToListAsync();
         }
 
+
         public async Task<List<MonthlyRevenueDto>> GetMonthlyRevenueAsync()
         {
+            var successStatuses = new[]
+           {
+        OrderStatus.Confirmed,
+        OrderStatus.Delivered,
+        OrderStatus.Shipped
+    };
             return await _context.Orders
-                .Where(o => o.Status == OrderStatus.Confirmed)
+                //.Where(o => o.Status == OrderStatus.Confirmed)
+                .Where(o=>successStatuses.Contains(o.Status))
                 .GroupBy(o => new { o.CreatedAt.Year, o.CreatedAt.Month })
                 .Select(g => new MonthlyRevenueDto
                 {

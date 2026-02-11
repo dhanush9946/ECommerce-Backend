@@ -7,7 +7,8 @@ namespace ECommerce.Application.Interfaces
 {
     public interface IAdminOrderService
     {
-        Task<List<AdminOrderResponseDto>> GetAllOrders();
+        Task<List<AdminOrderResponseDto>> GetAllOrders(string? status);
+
         Task<AdminOrderResponseDto> GetOrderById(Guid orderId);
         Task UpdateOrderStatus(Guid orderId, string Status);
     }

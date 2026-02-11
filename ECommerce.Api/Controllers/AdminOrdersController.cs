@@ -16,17 +16,20 @@ namespace ECommerce.Api.Controllers
             _adminOrderService = adminOrderService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllOrders()
+        [HttpGet]
+        public async Task<IActionResult> GetAllOrders([FromQuery] string? status)
         {
             try
             {
-                return Ok(await _adminOrderService.GetAllOrders());
+                var orders = await _adminOrderService.GetAllOrders(status);
+                return Ok(orders);
             }
-            catch(UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException ex)
             {
                 return Unauthorized(ex.Message);
             }
         }
+
         [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrder(Guid orderId)
         {

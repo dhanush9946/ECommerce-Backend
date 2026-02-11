@@ -5,6 +5,7 @@ using ECommerce.Infrastructure.Data;
 using ECommerce.Infrastructure.Repositories;
 using ECommerce.Infrastructure.Security;
 using ECommerce.Infrastructure.Services.Email;
+using ECommerce.Infrastructure.Services.PaymentGateways;
 using ECommerce.Infrastructure.UnitOfWork;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -17,6 +18,21 @@ using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+//-------------------payment--------------------------------
+var paymentGateway = builder.Configuration["Payment:Gateway"];
+
+if (paymentGateway == "Razorpay")
+{
+    builder.Services.AddScoped<IPaymentGateway, RazorpayGateway>();
+}
+else
+{
+    builder.Services.AddScoped<IPaymentGateway, MockPaymentGateway>();
+}
+
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
 
 // -------------------- Controllers --------------------
 builder.Services.AddControllers();
@@ -69,7 +85,6 @@ builder.Services.AddScoped<IWishlistRepository, WishlistRepository>();
 builder.Services.AddScoped<IWishlistService, WishlistService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IPaymentService, MockPaymentService>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IAdminUserService, AdminUserService>();
 builder.Services.AddScoped<IAdminOrderService, AdminOrderService>();

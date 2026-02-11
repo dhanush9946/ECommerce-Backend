@@ -59,7 +59,7 @@ namespace ECommerce.Application.Services
 
         }
 
-        public async Task<List<DailySalesDto>> GetDailySalesAsync(int days = 7)
+        public async Task<List<DailySalesDto>> GetDailySalesAsync(int days = 14)
         {
             if (days <= 0)
                 throw new Exception("Days must be greater than zero");

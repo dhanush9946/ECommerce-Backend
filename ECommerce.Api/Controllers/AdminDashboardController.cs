@@ -30,7 +30,7 @@ namespace ECommerce.Api.Controllers
         }
 
         [HttpGet("daily-sales")]
-        public async Task<IActionResult> GetDailySales([FromQuery] int days = 7)
+        public async Task<IActionResult> GetDailySales([FromQuery] int days = 14)
         {
             try
             {

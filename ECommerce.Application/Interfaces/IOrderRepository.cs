@@ -13,7 +13,8 @@ namespace ECommerce.Application.Interfaces
         Task UpdateAsync(Order order);
 
 
-        Task<List<Order>> GetAllAsync();
+        Task<List<Order>> GetAllAsync(OrderStatus? status);
+
         Task<Order?> GetOrderWithItemsAsync(Guid orderId);
 
 

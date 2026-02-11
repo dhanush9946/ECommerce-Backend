@@ -19,10 +19,20 @@ namespace ECommerce.Application.Services
             _unitOfWork = unitOfWork;
         }
 
-        
-        public async Task<List<AdminOrderResponseDto>> GetAllOrders()
+
+        public async Task<List<AdminOrderResponseDto>> GetAllOrders(string? status)
         {
-            var orders = await _orderRepository.GetAllAsync();
+            OrderStatus? parsedStatus = null;
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (!Enum.TryParse<OrderStatus>(status, true, out var result))
+                    throw new Exception("Invalid order status");
+
+                parsedStatus = result;
+            }
+
+            var orders = await _orderRepository.GetAllAsync(parsedStatus);
 
             return orders.Select(o => new AdminOrderResponseDto
             {
@@ -41,6 +51,8 @@ namespace ECommerce.Application.Services
                 }).ToList()
             }).ToList();
         }
+
+
 
         public async Task<AdminOrderResponseDto> GetOrderById(Guid orderId)
         {

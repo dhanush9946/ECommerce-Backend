@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace ECommerce.Application.DTOs.Payment
 {
-    public class PaymentRequestDto
+    public class RazorpayOrderResponseDto
     {
-        public Guid OrderId { get; set; }
+        public string OrderId { get; set; } = string.Empty;
+        public string Key { get; set; } = string.Empty;
         public decimal Amount { get; set; }
-        public string Method { get; set; } = null!;
-
-        public RazorpayPaymentDetailsDto? RazorpayDetails { get; set; }
     }
 }
