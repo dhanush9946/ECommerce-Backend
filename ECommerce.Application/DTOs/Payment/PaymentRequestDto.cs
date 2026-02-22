@@ -12,6 +12,9 @@ namespace ECommerce.Application.DTOs.Payment
         public decimal Amount { get; set; }
         public string Method { get; set; } = null!;
 
+        /// <summary>"success" or "failed" — sent by frontend after Razorpay resolves.</summary>
+        public string PaymentStatus { get; set; } = "success";
+
         public RazorpayPaymentDetailsDto? RazorpayDetails { get; set; }
     }
 }

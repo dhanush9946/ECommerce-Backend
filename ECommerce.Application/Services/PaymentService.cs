@@ -6,13 +6,19 @@ public class PaymentService : IPaymentService
 {
     private readonly IPaymentRepository _paymentRepo;
     private readonly IPaymentGateway _gateway;
+    private readonly IOrderRepository _orderRepo;
+    private readonly ICartRepository _cartRepo;
 
     public PaymentService(
         IPaymentRepository paymentRepo,
-        IPaymentGateway gateway)
+        IPaymentGateway gateway,
+        IOrderRepository orderRepo,
+        ICartRepository cartRepo)
     {
         _paymentRepo = paymentRepo;
         _gateway = gateway;
+        _orderRepo = orderRepo;
+        _cartRepo = cartRepo;
     }
 
     public async Task<RazorpayOrderResponseDto> CreateOrder(decimal amount)
@@ -25,17 +31,19 @@ public class PaymentService : IPaymentService
 
     public async Task<bool> ProcessPayment(PaymentRequestDto dto)
     {
-        if (dto.Method == "Razorpay")
+        // --- 1. For Razorpay: verify signature only on success ---
+        if (dto.Method == "Razorpay" && dto.PaymentStatus == "success")
         {
             if (dto.RazorpayDetails == null)
                 throw new ArgumentException("Razorpay details are required");
 
-
             var isValid = _gateway.VerifyPayment(dto.RazorpayDetails);
-
             if (!isValid)
-                throw new ArgumentException("Payment verification failed");
+                throw new ArgumentException("Payment signature verification failed");
         }
+
+        // --- 2. Record payment with whatever status came from frontend ---
+        var normalizedStatus = dto.PaymentStatus?.ToLower() == "success" ? "Success" : "Failed";
 
         var payment = new Payment
         {
@@ -43,10 +51,31 @@ public class PaymentService : IPaymentService
             OrderId = dto.OrderId,
             Amount = dto.Amount,
             Method = dto.Method,
-            Status = "Success"
+            Status = normalizedStatus
         };
 
         await _paymentRepo.AddAsync(payment);
-        return true;
+
+        // --- 3. On success: update order to Placed and clear cart ---
+        if (normalizedStatus == "Success")
+        {
+            var order = await _orderRepo.GetOrderWithItemsAsync(dto.OrderId);
+
+            if (order != null)
+            {
+                // Mark order as Placed
+                order.Status = OrderStatus.Placed;
+                await _orderRepo.UpdateAsync(order);
+
+                // Clear the user's cart
+                var cartItems = await _cartRepo.GetUserCart(order.UserId);
+                foreach (var item in cartItems)
+                {
+                    await _cartRepo.RemoveAsync(item);
+                }
+            }
+        }
+
+        return normalizedStatus == "Success";
     }
 }

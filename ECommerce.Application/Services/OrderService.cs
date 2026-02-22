@@ -1,37 +1,33 @@
 ﻿using ECommerce.Application.DTOs.Order;
-using ECommerce.Application.DTOs.Payment;
 using ECommerce.Application.Interfaces;
 using ECommerce.Domain.Entities;
 
 namespace ECommerce.Application.Services
 {
-    public class OrderService:IOrderService
+    public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ICartRepository _cartRepository;
         private readonly IProductRepository _productRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IPaymentService _paymentService;
 
-        public OrderService(IOrderRepository orderRepository,
-                            ICartRepository cartRepository,
-                            IProductRepository productRepository,
-                            IUnitOfWork unitOfWork,
-                            IPaymentService paymentService)
+        public OrderService(
+            IOrderRepository orderRepository,
+            ICartRepository cartRepository,
+            IProductRepository productRepository,
+            IUnitOfWork unitOfWork)
         {
             _orderRepository = orderRepository;
             _cartRepository = cartRepository;
             _productRepository = productRepository;
             _unitOfWork = unitOfWork;
-            _paymentService = paymentService;
         }
 
-        public async Task<Guid> PlaceOrder(Guid userId,CheckoutRequestDto dto)
+        public async Task<Guid> PlaceOrder(Guid userId, CheckoutRequestDto dto)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-
                 var cartItems = await _cartRepository.GetUserCart(userId);
                 if (!cartItems.Any())
                     throw new Exception("Cart is Empty");
@@ -44,7 +40,7 @@ namespace ECommerce.Application.Services
                     var product = await _productRepository.GetByIdAsync(cart.ProductId);
 
                     if (product == null || product.Stock < cart.Quantity)
-                        throw new Exception($"Insufficient stoke for {cart.Product.Name}");
+                        throw new Exception($"Insufficient stock for {cart.Product.Name}");
 
                     if (cart.Quantity <= 0)
                         throw new Exception("Invalid quantity");
@@ -57,8 +53,7 @@ namespace ECommerce.Application.Services
                         throw new Exception(
                             $"Only {product.Stock} units available for {product.Name}");
 
-
-                    //we want to reduce the product stock
+                    // Reserve stock immediately
                     product.Stock -= cart.Quantity;
                     await _productRepository.UpdateAsync(product);
 
@@ -73,40 +68,22 @@ namespace ECommerce.Application.Services
                     });
                 }
 
+                // Order starts as Pending — it becomes Placed when payment is confirmed
                 var order = new Order
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId,
                     ShippingAddress = dto.ShippingAddress,
                     TotalAmount = total,
-                    Status = OrderStatus.Placed,
+                    Status = OrderStatus.Pending,
                     OrderItems = orderItems
                 };
 
                 await _orderRepository.AddAsync(order);
 
-
-                //---------------Payment----------------------------
-                var paymentResult = await _paymentService.ProcessPayment(new PaymentRequestDto
-                {
-                    OrderId = order.Id,
-                    Amount = order.TotalAmount,
-                    Method = dto.PaymentMethod
-                });
-
-                if (!paymentResult)
-                    throw new Exception("Payment failed");
-
-                order.Status = OrderStatus.Placed;//----------------------------------
-                await _orderRepository.UpdateAsync(order);
-
-
-                foreach (var item in cartItems)
-                {
-                    await _cartRepository.RemoveAsync(item);
-                }
-
                 await _unitOfWork.CommitAsync();
+
+                // Return orderId — frontend uses it when calling POST /payments
                 return order.Id;
             }
             catch

@@ -37,15 +37,16 @@ public class PaymentsController : ControllerBase
         {
             var success = await _paymentService.ProcessPayment(dto);
 
-            if (!success)
-                return BadRequest("Payment failed");
-
-            return Ok("Payment successful");
+            // Both success and failure recordings are valid — return 200 with status
+            return Ok(new
+            {
+                recorded = true,
+                paymentStatus = success ? "Success" : "Failed"
+            });
         }
         catch(UnauthorizedAccessException ex)
         {
             return Unauthorized(ex.Message);
-
         }
         catch(ArgumentException ex)
         {

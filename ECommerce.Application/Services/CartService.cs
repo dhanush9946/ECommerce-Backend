@@ -68,6 +68,10 @@ namespace ECommerce.Application.Services
             }
             else if (dto.Action == "decrease")
             {
+                if (cartItem.Quantity == 1)
+                {
+                    throw new Exception("Minimum 1 Quantity want for order");
+                }
                 cartItem.Quantity -= 1;
 
                 if (cartItem.Quantity <= 0)
