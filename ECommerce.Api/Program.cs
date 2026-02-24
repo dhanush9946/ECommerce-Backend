@@ -164,11 +164,9 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // -------------------- Middleware Pipeline --------------------
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
