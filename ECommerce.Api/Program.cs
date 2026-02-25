@@ -106,6 +106,8 @@ builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // -------------------- JWT Authentication --------------------
+Console.WriteLine("JWT KEY FROM CONFIG: " + builder.Configuration["Jwt:Key"]);
+
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
