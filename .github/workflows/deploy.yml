@@ -24,7 +24,10 @@ jobs:
       - name: Publish project
         run: dotnet publish ECommerce.Api/ECommerce.Api.csproj -c Release -o ./publish
 
-      # 🔥 CLEAN OLD FILES FIRST
+      - name: Show publish output (debug)
+        run: ls -la publish
+
+      # Clean server folder
       - name: Clean server folder
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -33,18 +36,20 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo rm -rf /var/www/ecommerce/*
+            sudo mkdir -p /var/www/ecommerce
 
-      # 📦 COPY NEW FILES
+      # Copy files (IMPORTANT FIX HERE)
       - name: Copy files to EC2
-        uses: appleboy/scp-action@v0.1.4
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "publish/*"
-          target: "/var/www/ecommerce"
+          target: "/var/www/ecommerce/"
+          overwrite: true
 
-      # 🔄 RESTART SERVICE
+      # Restart service
       - name: Restart Service
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -53,3 +58,4 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo systemctl restart ecommerce.service
+            sudo systemctl status ecommerce.service --no-pager
