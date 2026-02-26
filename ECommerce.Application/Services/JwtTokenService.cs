@@ -20,6 +20,16 @@ namespace ECommerce.Application.Services
 
         public string GenerateToken(User user)
         {
+           
+
+            var keyString = _configuration["Jwt:Key"];
+
+            if (string.IsNullOrEmpty(keyString))
+            {
+                throw new Exception("JWT Key is missing from configuration! Check Environment Variables.");
+            }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyString));
             var jwt = _configuration.GetSection("Jwt");
 
             var claims = new List<Claim>
@@ -29,9 +39,9 @@ namespace ECommerce.Application.Services
                 new Claim(ClaimTypes.Role,user.Role)
             };
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwt["Key"]!)
-                );
+            //var key = new SymmetricSecurityKey(
+            //    Encoding.UTF8.GetBytes(jwt["Key"]!)
+            //    );
 
             var creds = new SigningCredentials(
                 key, SecurityAlgorithms.HmacSha256);

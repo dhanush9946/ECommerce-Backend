@@ -44,7 +44,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173") // frontend URL
+            .WithOrigins("http://localhost:5173", "https://dhanushecommerce.duckdns.org") // frontend URL
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials(); 
@@ -106,7 +106,7 @@ builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // -------------------- JWT Authentication --------------------
-Console.WriteLine("JWT KEY FROM CONFIG: " + builder.Configuration["Jwt:Key"]);
+//Console.WriteLine("JWT KEY FROM CONFIG: " + builder.Configuration["Jwt:Key"]);
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 
