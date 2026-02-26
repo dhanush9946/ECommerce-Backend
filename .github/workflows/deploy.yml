@@ -24,6 +24,7 @@ jobs:
       - name: Publish project
         run: dotnet publish ECommerce.Api/ECommerce.Api.csproj -c Release -o ./publish
 
+      # Clean server directory completely
       - name: Clean server folder
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -34,16 +35,18 @@ jobs:
             sudo rm -rf /var/www/ecommerce/*
             sudo mkdir -p /var/www/ecommerce
 
-      - name: Copy publish contents only
+      # Copy ONLY publish contents (not the folder itself)
+      - name: Copy publish contents to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: "publish/*"
+          source: "./publish/*"
           target: "/var/www/ecommerce/"
           overwrite: true
 
+      # Restart .NET service
       - name: Restart Service
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -52,3 +55,4 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo systemctl restart ecommerce.service
+            sudo systemctl status ecommerce.service --no-pager
