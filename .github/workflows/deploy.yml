@@ -22,8 +22,19 @@ jobs:
         run: dotnet restore
 
       - name: Publish project
-        run: dotnet publish ECommerce.Api/ECommerce.Api.csproj -c Release -o publish
+        run: dotnet publish ECommerce.Api/ECommerce.Api.csproj -c Release -o ./publish
 
+      # 🔥 CLEAN OLD FILES FIRST
+      - name: Clean server folder
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo rm -rf /var/www/ecommerce/*
+
+      # 📦 COPY NEW FILES
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -33,6 +44,7 @@ jobs:
           source: "publish/*"
           target: "/var/www/ecommerce"
 
+      # 🔄 RESTART SERVICE
       - name: Restart Service
         uses: appleboy/ssh-action@v0.1.10
         with:
