@@ -58,17 +58,14 @@ builder.Services.AddCors(options =>
     options.AddPolicy("CorsPolicy", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "https://ecommerce-frond.vercel.app",
-                "https://ecommerce-frond-1jduberke-dhanush9946-projects.vercel.app"
-            )
+            .SetIsOriginAllowed(origin =>
+                origin.Contains("vercel.app") ||
+                origin.Contains("localhost"))
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
     });
 });
-
 
 
 
