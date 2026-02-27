@@ -39,17 +39,33 @@ builder.Services.AddControllers();
 
 
 //------------------React Connection with CORE--------------------
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("CorsPolicy", policy =>
+//    {
+//        policy
+//            .WithOrigins("http://localhost:5173", "https://dhanushecommerce.duckdns.org",
+//            "https://ecommerce-frond.vercel.app",
+//            "https://ecommerce-frond-1jduberke-dhanush9946-projects.vercel.app") // frontend URL
+//            .AllowAnyHeader()
+//            .AllowAnyMethod()
+//            .AllowCredentials(); 
+//    });
+//});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173", "https://dhanushecommerce.duckdns.org",
-            "https://ecommerce-frond.vercel.app",
-            "https://ecommerce-frond-1jduberke-dhanush9946-projects.vercel.app") // frontend URL
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://ecommerce-frond.vercel.app",
+                "https://ecommerce-frond-1jduberke-dhanush9946-projects.vercel.app"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials(); 
+            .AllowCredentials();
     });
 });
 
