@@ -23,9 +23,9 @@ public class ProductsController : ControllerBase
     {
         try
         {
-            //return Ok(new { message = "CI/CD is working!", data = await _service.GetAllAsync() });
+            return Ok(new { message = "CI/CD is working!", data = await _service.GetAllAsync() });
 
-            return Ok(await _service.GetAllAsync());
+           // return Ok(await _service.GetAllAsync());
         }
         catch(ApplicationException ex)
         {
